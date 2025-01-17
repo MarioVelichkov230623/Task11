@@ -1,4 +1,3 @@
-
 import argparse
 import gym
 import json
@@ -9,8 +8,6 @@ import wandb
 import numpy as np
 from ot2_gym_wrapper import OT2Env  # Import your custom environment
 from stable_baselines3.common.callbacks import BaseCallback
-
-
 from clearml import Task
 
 # Use the appropriate project name and task name (if you are in the first group in Dean's mentor group, use the project name 'Mentor Group D/Group 1')
@@ -30,7 +27,7 @@ task.execute_remotely(queue_name="default")
 parser = argparse.ArgumentParser(description="TD3 Training Script")
 parser.add_argument("--learning_rate", type=float, default=1e-4, help="Learning rate for the TD3 model")
 parser.add_argument("--batch_size", type=int, default=128, help="Batch size for training")
-parser.add_argument("--n_steps", type=int, default=5000, help="Number of training steps")
+parser.add_argument("--n_steps", type=int, default=2000000, help="Number of training steps")
 parser.add_argument("--buffer_size", type=int, default=1000000, help="Replay buffer size")
 parser.add_argument("--gamma", type=float, default=0.99, help="Discount factor")
 parser.add_argument("--tau", type=float, default=0.005, help="Target smoothing coefficient")
@@ -51,7 +48,7 @@ if wandb_key is None:
 wandb.login(key=wandb_key)
 wandb.init(
     project="OT2_TD3_Local_Test",
-    sync_tensorboard=True,  # Sync with TensorBoard
+    sync_tensorboard=False,  # Sync with TensorBoard
     config=vars(args)  # Log all hyperparameters to wandb
 )
 
@@ -107,16 +104,28 @@ wandb_callback = WandbCallback(
 custom_callback = CustomWandbCallback()
 
 # Train the model
-print("Starting local training...")
-model.learn(
-    total_timesteps=args.n_steps,  # Short training session for local testing
-    callback=[wandb_callback, custom_callback],  # Use multiple callbacks
-    progress_bar=True
-)
 
-# Save the trained model at the end
-model.save(f"./models/td3_model_lr{args.learning_rate}_bs{args.batch_size}.zip")
-print("Local training complete. Model saved.")
+# Train the model for 200,000 timesteps, saving every 50,000 timesteps
+total_timesteps = 200_000
+save_interval = 50_000
+
+# Calculate the number of increments
+increments = total_timesteps // save_interval
+
+for i in range(increments):
+    # Train for 50,000 timesteps
+    model.learn(
+        total_timesteps=save_interval,
+        callback=[wandb_callback, custom_callback],  # Log metrics and custom data
+        progress_bar=True,
+        reset_num_timesteps=False,
+        tb_log_name=f"td3_model_lr{args.learning_rate}_bs{args.batch_size}_run{wandb.run.id}"
+    )
+    
+    # Save the model at the end of this increment
+    model.save(f"models/td3_model_lr{args.learning_rate}_bs{args.batch_size}_run{wandb.run.id}_step{(i + 1) * save_interval}.zip")
+
+
 
 # Close the environment
 env.close()
