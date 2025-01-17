@@ -8,23 +8,25 @@ from stable_baselines3.common.noise import NormalActionNoise
 from wandb.integration.sb3 import WandbCallback
 import wandb
 import numpy as np
+from stable_baselines3.common.utils import set_random_seed
 from ot2_gym_wrapper import OT2Env  # Import your custom environment
 from stable_baselines3.common.callbacks import BaseCallback
-from clearml import Task
+# from clearml import Task
 
-# Use the appropriate project name and task name (if you are in the first group in Dean's mentor group, use the project name 'Mentor Group D/Group 1')
-# It can also be helpful to include the hyperparameters in the task name
-task = Task.init(project_name='Mentor Group J/Group 1', task_name='Mario_TD3_Training_1')
-#copy these lines exactly as they are
-#setting the base docker image
+# # Use the appropriate project name and task name (if you are in the first group in Dean's mentor group, use the project name 'Mentor Group D/Group 1')
+# # It can also be helpful to include the hyperparameters in the task name
+# task = Task.init(project_name='Mentor Group J/Group 1', task_name='Mario_TD3_Training_1')
+# #copy these lines exactly as they are
+# #setting the base docker image
 
-#copy these lines exactly as they are
-#setting the base docker image
-task.set_base_docker('deanis/2023y2b-rl:latest')
-#setting the task to run remotely on the default queue
-task.execute_remotely(queue_name="default")
+# #copy these lines exactly as they are
+# #setting the base docker image
+# task.set_base_docker('deanis/2023y2b-rl:latest')
+# #setting the task to run remotely on the default queue
+# task.execute_remotely(queue_name="default")
 
-
+SEED = 42
+np.random.seed(SEED)
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="TD3 Training Script")
 parser.add_argument("--learning_rate", type=float, default=1e-4, help="Learning rate for the TD3 model")
@@ -56,11 +58,12 @@ wandb.init(
 
 # Initialize the environment
 env = OT2Env()
-
+env.seed(SEED)
 # Define action noise for exploration
 n_actions = env.action_space.shape[-1]
 action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=args.action_noise_sigma * np.ones(n_actions))
 
+set_random_seed(SEED)
 # Initialize the TD3 model
 model = TD3(
     "MlpPolicy",              # Policy type
@@ -107,15 +110,15 @@ custom_callback = CustomWandbCallback()
 
 # Train the model
 
-# Train the model for 200,000 timesteps, saving every 50,000 timesteps
-total_timesteps = 200_000
-save_interval = 50_000
+# Train the model for 300,000 timesteps, saving every 100,000 timesteps
+total_timesteps = 300_000
+save_interval = 100_000
 
 # Calculate the number of increments
 increments = total_timesteps // save_interval
 
 for i in range(increments):
-    # Train for 50,000 timesteps
+    # Train for 100,000 timesteps
     model.learn(
         total_timesteps=save_interval,
         callback=[wandb_callback, custom_callback],  # Log metrics and custom data
