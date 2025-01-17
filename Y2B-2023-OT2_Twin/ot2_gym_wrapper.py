@@ -36,7 +36,12 @@ class OT2Env(gym.Env):
         self.reward_fn = reward_fn if reward_fn else self.heatmap_reward_fn
         self.done_conditions = done_conditions if done_conditions else self.default_done_conditions
 
-
+    def seed(self, seed=None):
+        """Seed the environment for reproducibility."""
+        self.np.random, seed = gym.utils.seeding.np_random(seed)
+        return seed
+    
+    
     def update_target_marker(self):
         # Create a new marker for the updated target position
         print(f"Creating target marker at: {self.target_position}")
