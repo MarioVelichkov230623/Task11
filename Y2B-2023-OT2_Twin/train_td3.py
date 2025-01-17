@@ -1,5 +1,3 @@
-import subprocess
-subprocess.run(["pip", "install", "--upgrade", "typing_extensions"])
 import argparse
 import gym
 import json

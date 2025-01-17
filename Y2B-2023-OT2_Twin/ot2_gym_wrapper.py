@@ -1,5 +1,4 @@
 # Rounded to 3 because of task 9
-
 import gym
 from gym import spaces
 import numpy as np
@@ -38,10 +37,10 @@ class OT2Env(gym.Env):
 
     def seed(self, seed=None):
         """Seed the environment for reproducibility."""
-        self.np.random, seed = gym.utils.seeding.np_random(seed)
+        self.np_random, seed = gym.utils.seeding.np_random(seed)
         return seed
     
-    
+
     def update_target_marker(self):
         # Create a new marker for the updated target position
         print(f"Creating target marker at: {self.target_position}")
