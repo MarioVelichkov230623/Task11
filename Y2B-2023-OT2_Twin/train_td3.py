@@ -126,6 +126,22 @@ import numpy as np
 from ot2_gym_wrapper import OT2Env  # Import your custom environment
 from stable_baselines3.common.callbacks import BaseCallback
 
+
+from clearml import Task
+
+# Use the appropriate project name and task name (if you are in the first group in Dean's mentor group, use the project name 'Mentor Group D/Group 1')
+# It can also be helpful to include the hyperparameters in the task name
+task = Task.init(project_name='Mentor Group J/Group 1', task_name='Mario_TD3_Training_1')
+#copy these lines exactly as they are
+#setting the base docker image
+
+#copy these lines exactly as they are
+#setting the base docker image
+task.set_base_docker('deanis/2023y2b-rl:latest')
+#setting the task to run remotely on the default queue
+task.execute_remotely(queue_name="default")
+
+
 # Parse command-line arguments
 parser = argparse.ArgumentParser(description="TD3 Training Script")
 parser.add_argument("--learning_rate", type=float, default=1e-4, help="Learning rate for the TD3 model")
