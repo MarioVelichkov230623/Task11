@@ -14,7 +14,6 @@ from ot2_gym_wrapper import OT2Env  # Import your custom environment
 from stable_baselines3.common.callbacks import BaseCallback
 from clearml import Task
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Use CPU
 
 # Use the appropriate project name and task name (if you are in the first group in Dean's mentor group, use the project name 'Mentor Group D/Group 1')
 # It can also be helpful to include the hyperparameters in the task name
